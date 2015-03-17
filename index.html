@@ -4,7 +4,7 @@
 <title>Lightning</title>
 </head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
 <meta name="description" content="Lightning is a very light and shockingly fast feed reader.">
 <style>
 
@@ -113,7 +113,6 @@ a:visited, a.read {
 @media (max-width: 65rem) {
     body {
         width: 100%;
-        padding: 1rem;
     }
     #entries a span:not(.title) {
         display: none;
@@ -124,6 +123,9 @@ a:visited, a.read {
 }
 
 @media (max-width: 45rem) {
+    body {
+        padding: 1rem;
+    }
     section:not(:last-child) {
         margin-bottom: 2rem;
     }
@@ -132,6 +134,7 @@ a:visited, a.read {
         width: 100%;
         margin: 0.5rem 0 0 0;
         margin-top: 0.5rem;
+        font-size: inherit;
     }
 }
 
@@ -178,7 +181,6 @@ Store.prototype.addFeed = function(url) {
         var entries = result.feed.entries;
         var now = new Date().getTime();
         for (var i = this.initEntries; i < entries.length; i++) {
-            var unix = new Date(entries[i].publishedDate).getTime();
             entries[i].read = now;
         }
         this.loadFeed(result);
@@ -194,11 +196,12 @@ Store.prototype.removeFeed = function(url) {
 
 Store.prototype.cleanFeed = function(url) {
     console.log('clearerere');
+    var sorted = [];
     var entries = this.feeds[url].entries;
-    var unixes = Object.keys(entries);
-    unixes.sort(function(a, b) { return b - a });
-    for (var i = this.maxEntries / 2; i < unixes.length; i++) {
-        delete entries[unixes[i]];
+    for (var key in entries) sorted.push(entries[key]);
+    sorted.sort(function(a, b) { return b.unix - a.unix });
+    for (var i = this.maxEntries / 2; i < sorted.length; i++) {
+        delete entries[sorted[i].hash];
     }
 }
 
@@ -229,10 +232,11 @@ Store.prototype.loadFeed = function(result) {
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         entry.unix = new Date(entry.publishedDate).getTime();
+        entry.hash = this.entryHash(entry);
         entry.feedTitle = feed.title;
         entry.feedUrl = feed.url;
-        if (entry.unix in feed.entries && feed.entries[entry.unix].read) continue;
-        feed.entries[entry.unix] = entry;
+        if (entry.hash in feed.entries && feed.entries[entry.hash].read) continue;
+        feed.entries[entry.hash] = entry;
     }
     var numEntries = Object.keys(feed.entries).length;
     if (numEntries > this.maxEntries) this.cleanFeed(feed.url);
@@ -246,12 +250,25 @@ Store.prototype.readEntry = function(entry) {
 Store.prototype.readAll = function() {
     var now = new Date().getTime();
     for (var url in this.feeds) {
-        for (var unix in this.feeds[url].entries) {
-            var entry = this.feeds[url].entries[unix];
+        for (var key in this.feeds[url].entries) {
+            var entry = this.feeds[url].entries[key];
             if (!entry.read) entry.read = now;
         }
     }
     this.setStore('feeds', this.feeds);
+}
+
+Store.prototype.entryHash = function(entry) {
+    // http://jsperf.com/hashcodelordvlad
+    var s = entry.title + entry.publishedDate;
+    var hash = 0, i, char;
+    if (s.length == 0) return hash;
+    for (i = 0, l = s.length; i < l; i++) {
+        char = s.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
 }
 
 // Renderer
@@ -299,8 +316,8 @@ Renderer.prototype.renderEntries = function() {
     var unread = [];
     for (var url in this.store.feeds) {
         var feed = this.store.feeds[url];
-        for (var unix in feed.entries) {
-            var entry = feed.entries[unix];
+        for (var key in feed.entries) {
+            var entry = feed.entries[key];
             if (!entry.read) unread.push(entry);
         }
     }
