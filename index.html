@@ -4,6 +4,8 @@
 <title>Lightning</title>
 </head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Lightning is a very light and shockingly fast feed reader.">
 <style>
 
 .right {
@@ -13,29 +15,41 @@
     display: none;
 }
 body {
-    font: 1rem/1.5rem 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 1rem 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
     padding: 3rem;
+    margin: 0 auto;
     color: #333;
-    max-width: 60rem;
+    width: 65rem;
+    box-sizing: border-box;
 }
-section + section {
-    margin-top: 3rem;
+p {
+    line-height: 1.5rem;
+}
+section:not(:last-child) {
+    margin-bottom: 3rem;
 }
 input, button {
     display: inline-block;
-    padding: 0.4em 0.75em;
     font: inherit;
     font-size: 0.85rem;
     color: inherit;
-    border: 1px solid #AAA;
+    border: 1px solid #888;
     background: transparent;
 }
 input {
+    padding: 0.5em;
     width: 15rem;
 }
 button {
+    padding: 0.5em 1.25em;
     border-radius: 0.3em;
     cursor: pointer;
+}
+button.huge {
+    width: 100%;
+    font-size: inherit;
+    padding: 1.5rem 0;
 }
 button + button, input + button, span + button {
     margin-left: 0.5em;
@@ -53,17 +67,22 @@ a {
     color: inherit;
 }
 a:visited, a.read {
-    color: #AAA;
+    color: #888;
+}
+#error {
+    border: 1px solid #888;
+    border-radius: 0.3em;
+    padding: 1rem 1rem;
 }
 #entries li {
     display: block;
-    border-bottom: 1px solid #AAA;
+    border-bottom: 1px solid #CCC;
 }
 #entries li:first-child {
-    border-top: 1px solid #AAA;
+    border-top: 1px solid #CCC;
 }
 #entries li a {
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
     display: block;
 }
 #entries li a:hover {
@@ -79,11 +98,33 @@ a:visited, a.read {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-#entries a span + span {
-    margin-left: 3rem;
-}
 #entries a span.feedTitle {
-    width: 12rem;
+    width: 10rem;
+    margin-left: 2rem;
+}
+#entries a span.title {
+    width: 37rem;
+}
+#entries a span:not(.title) {
+    color: #888;
+}
+
+@media (max-width: 65rem) {
+    body {
+        width: 100%;
+    }
+    #entries a span:not(.title) {
+        display: none;
+    }
+    #entries a span.title {
+        width: 100%;
+    }
+}
+
+@media (max-width: 40rem) {
+    #navigation, #feeds {
+        display: none;
+    }
 }
 
 </style>
@@ -96,6 +137,9 @@ a:visited, a.read {
 Store = function() {
     this.feeds = this.getStore('feeds');
     if (!this.feeds) this.feeds = {};
+    this.initEntries = 5;
+    this.numEntries = 20;
+    this.maxEntries = 100;
 };
 
 Store.prototype.setStore = function(key, store) {
@@ -107,14 +151,47 @@ Store.prototype.getStore = function(key) {
     return store && JSON.parse(store);
 }
 
+Store.prototype.queryFeed = function(url, callback) {
+    var feed = new google.feeds.Feed(url);
+    feed.includeHistoricalEntries();
+    feed.setNumEntries(this.numEntries);
+    feed.load(callback.bind(this));
+}
+
 Store.prototype.addFeed = function(url) {
-    this.feeds[url] = {entries: {}, title: url, url: url};
-    this.setStore('feeds', this.feeds);
+    if (url.indexOf('http') != 0) url = 'http://' + url;
+    this.queryFeed(url, function(result) {
+        if (result.error) return this.renderer.err(result.error.message);
+        this.feeds[result.feed.feedUrl] = {
+            entries: {},
+            title: result.feed.title,
+            url: result.feed.feedUrl
+        };
+        var entries = result.feed.entries;
+        var now = new Date().getTime();
+        for (var i = this.initEntries; i < entries.length; i++) {
+            var unix = new Date(entries[i].publishedDate).getTime();
+            entries[i].read = now;
+        }
+        this.loadFeed(result);
+        this.setStore('feeds', this.feeds);
+        this.renderer.render();
+    });
 }
 
 Store.prototype.removeFeed = function(url) {
     delete this.feeds[url];
     this.setStore('feeds', this.feeds);
+}
+
+Store.prototype.cleanFeed = function(url) {
+    console.log('clearerere');
+    var entries = this.feeds[url].entries;
+    var unixes = Object.keys(entries);
+    unixes.sort(function(a, b) { return b - a });
+    for (var i = this.maxEntries / 2; i < unixes.length; i++) {
+        delete entries[unixes[i]];
+    }
 }
 
 Store.prototype.clearFeeds = function() {
@@ -124,38 +201,33 @@ Store.prototype.clearFeeds = function() {
 
 Store.prototype.loadFeeds = function() {
     this.count = Object.keys(this.feeds).length;
-    if (this.count <= 0) this.renderer.render();
+    if (this.count <= 0) this.renderer.welcome();
     for (var url in this.feeds) {
-        var feed = new google.feeds.Feed(url);
-        feed.includeHistoricalEntries();
-        feed.setNumEntries(10);
-        var loadHandler = function(result) {
+        this.queryFeed(url, function(result) {
             this.loadFeed(result);
             if (!--this.count) {
                 this.setStore('feeds', this.feeds);
+                this.updated = new Date();
                 this.renderer.render();
             }
-        };
-        feed.load(loadHandler.bind(this));
+        });
     }
 }
 
 Store.prototype.loadFeed = function(result) {
     if (result.error) return;
     var feed = this.feeds[result.feed.feedUrl];
-    feed.title = result.feed.title;
-    feed.url = result.feed.feedUrl;
     var entries = result.feed.entries;
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         entry.unix = new Date(entry.publishedDate).getTime();
-        entry.feedTitle = result.feed.title;
-        entry.feedUrl = result.feed.feedUrl;
-        entry.read = 0;
-        if (!(entry.unix in feed.entries)) {
-            feed.entries[entry.unix] = entry;
-        }
+        entry.feedTitle = feed.title;
+        entry.feedUrl = feed.url;
+        if (entry.unix in feed.entries && feed.entries[entry.unix].read) continue;
+        feed.entries[entry.unix] = entry;
     }
+    var numEntries = Object.keys(feed.entries).length;
+    if (numEntries > this.maxEntries) this.cleanFeed(feed.url);
 }
 
 Store.prototype.readEntry = function(entry) {
@@ -194,12 +266,11 @@ Renderer.prototype.render = function() {
 Renderer.prototype.renderFeeds = function() {
     var feeds = document.getElementById('feeds');
     feeds.innerHTML = '';
-    var ul = this.el('ul');
+    var ul = feeds.appendChild(this.el('ul'));
     for (var url in this.store.feeds) {
         var feed = this.store.feeds[url];
         ul.appendChild(this.renderFeed(feed));
     }
-    feeds.appendChild(ul);
 }
 
 Renderer.prototype.renderFeed = function(feed) {
@@ -225,30 +296,47 @@ Renderer.prototype.renderEntries = function() {
             if (!entry.read) unread.push(entry);
         }
     }
-    unread.sort(function(a, b) {
-        return -(a.unix - b.unix);
-    });
-    
+
+    if (unread.length <= 0) {
+        var lastUpdate = this.el('p', '', 'lastUpdate');
+        entries.appendChild(lastUpdate);
+        var base = 'No unread entries available, last update ';
+        if (this.interval) clearInterval(this.interval);
+        var update = function() {
+            var seconds = Math.round((new Date() - this.store.updated) / 1000);
+            lastUpdate.innerHTML = base + seconds + " seconds ago."
+        }.bind(this);
+        update();
+        this.interval = setInterval(update, 1000);
+        return;
+    }
+
+    unread.sort(function(a, b) { return b.unix - a.unix; });
     var ul = this.el('ul');
     for (var i = 0; i < unread.length; i++) {
         var entry = unread[i];
         ul.appendChild(this.renderEntry(entry));
     }
     entries.appendChild(ul);
+    var readAll = this.el('button', 'Mark all as read', 'huge');
+    readAll.addEventListener('click', function() {
+        this.store.readAll();
+        this.renderEntries();
+    }.bind(this));
+    entries.appendChild(readAll);
 }
 
 Renderer.prototype.renderEntry = function(entry) {
     var li = this.el('li');
-    var a = this.el('a');
+    var a = li.appendChild(this.el('a'));
     a.href = entry.link;
-    a.appendChild(this.el('span', entry.feedTitle, 'feedTitle'));
     a.appendChild(this.el('span', entry.title, 'title'));
+    a.appendChild(this.el('span', entry.feedTitle, 'feedTitle'));
     a.appendChild(this.el('span', this.timeSince(entry), 'publishedDate right'));
     a.addEventListener('click', function() {
         this.store.readEntry(entry);
         this.renderEntries();
     }.bind(this));
-    li.appendChild(a);
     return li;
 }
 
@@ -272,6 +360,24 @@ Renderer.prototype.timeSince = function(entry) {
     }
 }
 
+Renderer.prototype.err = function(message) {
+    console.log(message);
+    var error = document.getElementById('error');
+    error.innerHTML = message;
+    error.classList.remove('hidden');
+    setTimeout(function() {
+        error.classList.add('hidden');
+    }, 3000);
+}
+
+Renderer.prototype.welcome = function() {
+    var entries = document.getElementById('feeds');
+    feeds.innerHTML = '<p>You have no feeds to manage.</p>';
+    var entries = document.getElementById('entries');
+    entries.innerHTML = '<p>Welcome to Lightning, a very light and shockingly fast feed reader.</p>';
+    entries.innerHTML += '<p>Please add your favourite feed to get started.</p>';
+}
+
 // Run
 
 run = function() {
@@ -279,11 +385,6 @@ run = function() {
     var store = new Store();
     renderer.store = store;
     store.renderer = renderer;
-    renderer.render();
-    // store.clearFeeds();
-    // store.addFeed('http://xkcd.com/rss.xml');
-    // store.addFeed('http://www.version2.dk/feeds/nyheder');
-    // store.addFeed('http://pitchfork.com/rss/reviews/albums/');
     store.loadFeeds();
 
     var feedUrl = document.getElementById('feedUrl');
@@ -294,35 +395,30 @@ run = function() {
         feedUrl.value = '';
     });
 
-    var readAll = document.getElementById('readAll');
-    readAll.addEventListener('click', function() {
-        store.readAll();
-        renderer.renderEntries();
-    });
-
     var feeds = document.getElementById('feeds');
-    feeds.classList.add('hidden');
     var manageFeeds = document.getElementById('manageFeeds');
     manageFeeds.addEventListener('click', function() {
         feeds.classList.toggle('hidden');
     });
 
     window.addEventListener('focus', function() {
-        store.loadFeeds();
-    });
+        var seconds = (new Date() - this.updated) / 1000;
+        if (seconds < 60) return;
+        this.loadFeeds();
+    }.bind(store));
 }
 
 google.setOnLoadCallback(run);
 google.load("feeds", "1", {nocss: true});
 
 </script>
+<section id="error" class="hidden"></section>
 <section id="navigation">
     <input type="url" placeholder="Feed URL" id="feedUrl"><button id="addFeed">Add feed</button>
     <button id="manageFeeds">Manage feeds</button>
-    <button id="readAll" class="right">Mark all as read</button>
 </section>
-<section id="feeds"></section>
-<section id="entries"></section>
+<section id="feeds" class="hidden">Loading feeds...</section>
+<section id="entries">Loading entries...</section>
 <section id="footer">
     <p>Lightning is conjured by <a href="http://frieze.dk" title="Bjørn Friese">Bjørn Friese</a> aided by the spirits of <a href="https://developers.google.com/feed/" title="Google Feed API">Google Feed API</a>.</p>
     <p>In loving memory of <a href="http://en.wikipedia.org/wiki/Google_Reader" title="Google Reader">Google Reader</a> (7 October 2005 &mdash; 1 July 2013).<p>
