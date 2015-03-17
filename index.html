@@ -389,10 +389,14 @@ run = function() {
 
     var feedUrl = document.getElementById('feedUrl');
     var addFeed = document.getElementById('addFeed');
-    addFeed.addEventListener('click', function() {
+    var submit = function() {
         store.addFeed(feedUrl.value);
         store.loadFeeds();
         feedUrl.value = '';
+    };
+    addFeed.addEventListener('click', submit);
+    feedUrl.addEventListener('keydown', function(e) {
+        if (e.keyCode == 13) submit();
     });
 
     var feeds = document.getElementById('feeds');
