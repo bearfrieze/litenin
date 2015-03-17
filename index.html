@@ -36,6 +36,7 @@ input, button {
     color: inherit;
     border: 1px solid #888;
     background: transparent;
+    box-sizing: border-box;
 }
 input {
     padding: 0.5em;
@@ -112,12 +113,25 @@ a:visited, a.read {
 @media (max-width: 65rem) {
     body {
         width: 100%;
+        padding: 1rem;
     }
     #entries a span:not(.title) {
         display: none;
     }
     #entries a span.title {
         width: 100%;
+    }
+}
+
+@media (max-width: 45rem) {
+    section:not(:last-child) {
+        margin-bottom: 2rem;
+    }
+    #navigation input, #navigation button {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0 0 0;
+        margin-top: 0.5rem;
     }
 }
 
