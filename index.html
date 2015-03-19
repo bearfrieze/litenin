@@ -375,10 +375,10 @@ Renderer.prototype.el = function(type, text, cls) {
 Renderer.prototype.timeSince = function(entry) {
     var seconds = Math.floor((new Date().getTime() - entry.unix) / 1000);
     for (var i = 0; this.units.length; i++) {
-        var interval = this.units[i];
-        var divided = Math.floor(seconds / interval.seconds);
+        var unit = this.units[i];
+        var divided = Math.floor(seconds / unit.seconds);
         if (divided >= 1) {
-            var result = divided + " " + interval.name;
+            var result = divided + " " + unit.name;
             if (divided > 1) result += 's';
             return result + " ago";
         }
