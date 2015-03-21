@@ -6,8 +6,8 @@ Lightning is a very light and shockingly fast feed reader.
 
 The goal of Lightning is to create a very light and shockingly fast feed reader.
 
-- **"Very light"**: All features are carefully chosen and should be essential to the average user. 
-- **"Shockingly fast"**: Speed is of high priority. Ideally solutions should be both simple and performant, but sometimes faster solutions might be chosen at the expense of simplicity.
+- Very light: All features are carefully chosen and should be essential to the average user. 
+- Shockingly fast: Speed is of high priority. Ideally solutions should be both simple and performant, but sometimes faster solutions might be chosen at the expense of simplicity.
 
 ## Concept
 
