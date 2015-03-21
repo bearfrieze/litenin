@@ -28,7 +28,7 @@ run = function() {
         if (seconds < 60) return;
         this.loadFeeds();
     }.bind(store));
-}
+};
 
 google.setOnLoadCallback(run);
 google.load("feeds", "1", {nocss: true});

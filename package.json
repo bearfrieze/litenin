@@ -1,0 +1,14 @@
+{
+  "name": "Lightning",
+  "description": "Lightning is a very light and shockingly fast feed reader.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bearfrieze/Lightning.git"
+  },
+  "version": "0.1.0",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-jshint": "^0.11.1",
+    "grunt-inline": "^0.3.4"
+  }
+}

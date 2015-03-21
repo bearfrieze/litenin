@@ -6,12 +6,12 @@ Renderer = function() {
         {name: 'hour', seconds: 60 * 60},
         {name: 'minute', seconds: 60}
     ];
-}
+};
 
 Renderer.prototype.render = function() {
     this.renderFeeds();
     this.renderEntries();
-}
+};
 
 Renderer.prototype.renderFeeds = function() {
     var feeds = document.getElementById('feeds');
@@ -21,7 +21,7 @@ Renderer.prototype.renderFeeds = function() {
         var feed = this.store.feeds[url];
         ul.appendChild(this.renderFeed(feed));
     }
-}
+};
 
 Renderer.prototype.renderFeed = function(feed) {
     var li = this.el('li');
@@ -33,16 +33,17 @@ Renderer.prototype.renderFeed = function(feed) {
     }.bind(this));
     li.appendChild(remove);
     return li;
-}
+};
 
 Renderer.prototype.renderEntries = function() {
+    var entry;
     var entries = document.getElementById('entries');
     entries.innerHTML = '';
     var unread = [];
     for (var url in this.store.feeds) {
         var feed = this.store.feeds[url];
         for (var key in feed.entries) {
-            var entry = feed.entries[key];
+            entry = feed.entries[key];
             if (!entry.read) unread.push(entry);
         }
     }
@@ -54,7 +55,7 @@ Renderer.prototype.renderEntries = function() {
         if (this.interval) clearInterval(this.interval);
         var update = function() {
             var seconds = Math.round((new Date() - this.store.updated) / 1000);
-            lastUpdate.innerHTML = base + seconds + " seconds ago."
+            lastUpdate.innerHTML = base + seconds + " seconds ago.";
         }.bind(this);
         update();
         this.interval = setInterval(update, 1000);
@@ -64,7 +65,7 @@ Renderer.prototype.renderEntries = function() {
     unread.sort(function(a, b) { return b.unix - a.unix; });
     var ul = this.el('ul');
     for (var i = 0; i < unread.length; i++) {
-        var entry = unread[i];
+        entry = unread[i];
         ul.appendChild(this.renderEntry(entry));
     }
     entries.appendChild(ul);
@@ -74,7 +75,7 @@ Renderer.prototype.renderEntries = function() {
         this.renderEntries();
     }.bind(this));
     entries.appendChild(readAll);
-}
+};
 
 Renderer.prototype.renderEntry = function(entry) {
     var li = this.el('li');
@@ -88,14 +89,14 @@ Renderer.prototype.renderEntry = function(entry) {
         this.renderEntries();
     }.bind(this));
     return li;
-}
+};
 
 Renderer.prototype.el = function(type, text, cls) {
     var el = document.createElement(type);
     if (text) el.innerHTML = text;
     if (cls) el.className = cls;
     return el;
-}
+};
 
 Renderer.prototype.timeSince = function(entry) {
     var seconds = Math.floor((new Date().getTime() - entry.unix) / 1000);
@@ -108,7 +109,7 @@ Renderer.prototype.timeSince = function(entry) {
             return result + " ago";
         }
     }
-}
+};
 
 Renderer.prototype.err = function(message) {
     console.log(message);
@@ -118,12 +119,12 @@ Renderer.prototype.err = function(message) {
     setTimeout(function() {
         error.classList.add('hidden');
     }, 3000);
-}
+};
 
 Renderer.prototype.welcome = function() {
-    var entries = document.getElementById('feeds');
+    var feeds = document.getElementById('feeds');
     feeds.innerHTML = '<p>You have no feeds to manage.</p>';
     var entries = document.getElementById('entries');
     entries.innerHTML = '<p>Welcome to Lightning, a very light and shockingly fast feed reader.</p>';
     entries.innerHTML += '<p>Please add your favourite feed to get started.</p>';
-}
+};
