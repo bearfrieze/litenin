@@ -19,14 +19,7 @@ Store.prototype.queryFeed = function(url, callback) {
     var feed = new google.feeds.Feed(url);
     feed.includeHistoricalEntries();
     feed.setNumEntries(this.numEntries);
-    feed.load(function(result) {
-        callback(result);
-        if (--this.count === 0) {
-            this.setStore('feeds', this.feeds);
-            this.updated = new Date();
-            this.renderer.render();
-        }
-    }.bind(this));
+    feed.load(callback);
 };
 
 Store.prototype.addFeed = function(url) {
@@ -43,9 +36,8 @@ Store.prototype.addFeed = function(url) {
         for (var i = this.initEntries; i < entries.length; i++) {
             entries[i].read = now;
         }
+        this.count = 1;
         this.loadFeed(result);
-        this.setStore('feeds', this.feeds);
-        this.renderer.render();
     }.bind(this));
 };
 
@@ -79,7 +71,6 @@ Store.prototype.loadFeeds = function() {
 };
 
 Store.prototype.loadFeed = function(result) {
-    if (result.error) return;
     var feed = this.feeds[result.feed.feedUrl];
     var entries = result.feed.entries;
     for (var i = 0; i < entries.length; i++) {
@@ -93,6 +84,11 @@ Store.prototype.loadFeed = function(result) {
     }
     var numEntries = Object.keys(feed.entries).length;
     if (numEntries > this.maxEntries) this.cleanFeed(feed.url);
+    if (--this.count === 0) {
+        this.setStore('feeds', this.feeds);
+        this.updated = new Date();
+        this.renderer.render();
+    }
 };
 
 Store.prototype.readEntry = function(entry) {
