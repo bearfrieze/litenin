@@ -3,7 +3,8 @@ todo.md
 
 # Grunt
 node_modules
-dest
+dev
+build
 
 # OSX
 .DS_Store

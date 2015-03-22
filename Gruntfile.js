@@ -7,7 +7,7 @@ module.exports = function(grunt) {
         less: {
             dev: {
                 files: {
-                    "dest/style.css": "src/style.less"
+                    "dev/style.css": "src/style.less"
                 }
             },
             build: {
@@ -15,7 +15,7 @@ module.exports = function(grunt) {
                     compress: true
                 },
                 files: {
-                    "dest/style.css": "src/style.less"
+                    "build/style.css": "src/style.less"
                 }
             }
         },
@@ -24,7 +24,16 @@ module.exports = function(grunt) {
                 files: [{
                     expand: true,
                     src: ['src/*.html', 'src/*.js'],
-                    dest: 'dest/',
+                    dest: 'dev/',
+                    filter: 'isFile',
+                    flatten: true
+                }]
+            },
+            build: {
+                files: [{
+                    expand: true,
+                    src: ['src/*.html', 'src/*.js'],
+                    dest: 'build/',
                     filter: 'isFile',
                     flatten: true
                 }]
@@ -32,8 +41,8 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: ['src/*.less'],
-                tasks: ['less:dev', 'copy:dev'],
+                files: ['src/*'],
+                tasks: ['jshint', 'less:dev', 'copy:dev'],
                 options: {
                     spawn: false
                 }
@@ -45,6 +54,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.registerTask('dev', ['jshint', 'less:dev', 'copy:dev']);
-    grunt.registerTask('build', ['less:build']);
+    grunt.registerTask('build', ['less:build', 'copy:build']);
     grunt.registerTask('default', ['dev']);
 };

@@ -15,13 +15,13 @@ Store.prototype.getStore = function(key) {
     return store && JSON.parse(store);
 };
 
-Store.prototype.queryFeed = function(url) {
+Store.prototype.queryFeed = function(url, callback) {
     var feed = new google.feeds.Feed(url);
     feed.includeHistoricalEntries();
     feed.setNumEntries(this.numEntries);
     feed.load(function(result) {
-        this.loadFeed(result);
-        if (!--this.count) {
+        callback(result);
+        if (--this.count === 0) {
             this.setStore('feeds', this.feeds);
             this.updated = new Date();
             this.renderer.render();
@@ -46,7 +46,7 @@ Store.prototype.addFeed = function(url) {
         this.loadFeed(result);
         this.setStore('feeds', this.feeds);
         this.renderer.render();
-    });
+    }.bind(this));
 };
 
 Store.prototype.removeFeed = function(url) {
@@ -74,7 +74,7 @@ Store.prototype.loadFeeds = function() {
     this.count = Object.keys(this.feeds).length;
     if (this.count <= 0) this.renderer.welcome();
     for (var url in this.feeds) {
-        this.queryFeed(url);
+        this.queryFeed(url, this.loadFeed.bind(this));
     }
 };
 
