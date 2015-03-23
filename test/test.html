@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lightning tests</title>
+    <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css">
+</head>
+<body>
+    <!-- Required for browser reporter -->
+    <div id="mocha"></div>
+
+    <!-- mocha -->
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script>
+        // This will be overridden by mocha-helper if you run with grunt
+        mocha.setup('bdd');
+    </script>
+
+    <!-- Include your assertion lib of choice -->
+    <script src="../node_modules/chai/chai.js"></script>
+    <script>
+        // Setup chai
+        var assert = chai.assert;
+    </script>
+
+    <!-- Include anything you want to test -->
+    <script src="../src/opml.js"></script>
+
+    <!-- Spec files -->
+    <script src="opml.js"></script>
+
+    <!-- run mocha -->
+    <script>
+        // If tests run in a real browser
+        // Can alternatively do a check on window.PHANTOMJS
+        if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+            mocha.run();
+        }
+    </script>
+</body>
+</html>
