@@ -7,7 +7,6 @@ module.exports = function(grunt) {
         },
         mocha: {
             test: {
-                // src: ['test/*.html'],
                 options: {
                     run: true,
                     urls: ['http://localhost:' + port + '/test/test.html']

@@ -24,13 +24,17 @@ OPML.prototype.xpath = function(expr) {
     return this.doc.evaluate(expr, this.doc, null, XPathResult.ANY_TYPE, null);
 };
 
-OPML.prototype.parseUrls = function() {
-    this.load();
-    this.parse();
+OPML.prototype.urls = function() {
     var i = this.xpath("/opml//outline[@type='rss']/@xmlUrl");
     var urls = [];
     for (var node = i.iterateNext(); node; node = i.iterateNext()) {
         urls.push(node.nodeValue);
     }
     return urls;
+};
+
+OPML.prototype.parseUrls = function() {
+    if (!this.load()) return false;
+    if (!this.parse()) return false;
+    return this.urls();
 };

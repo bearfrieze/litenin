@@ -14,7 +14,6 @@
     "grunt-contrib-jshint": "^0.11.1",
     "grunt-contrib-less": "^1.0.0",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-inline": "^0.3.4",
     "grunt-mocha": "^0.4.12",
     "mocha": "^2.2.1"
   }
