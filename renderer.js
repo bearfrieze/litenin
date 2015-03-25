@@ -26,7 +26,7 @@ Renderer.prototype.renderFeeds = function() {
 Renderer.prototype.renderFeed = function(feed) {
     var li = this.el('li');
     li.appendChild(this.el('span', feed.title, 'title'));
-    var remove = this.el('button', 'Remove feed', 'remove');
+    var remove = this.el('button', '✕', 'remove');
     remove.addEventListener('click', function() {
         this.store.removeFeed(feed.url);
         this.render();
@@ -126,5 +126,23 @@ Renderer.prototype.welcome = function() {
     feeds.innerHTML = '<p>You have no feeds to manage.</p>';
     var entries = document.getElementById('entries');
     entries.innerHTML = '<p>Welcome to Lightning, a very light and shockingly fast feed reader.</p>';
-    entries.innerHTML += '<p>Please add your favourite feed to get started.</p>';
+    entries.innerHTML += '<p>Please add your favourite feed to get started, or import your feeds from OPML below.</p>';
+    entries.innerHTML += '<p>If you are using <a href="http://feedly.com" title="Feedly">Feedly</a> you can get your OPML <a href="http://feedly.com/i/opml" title="Export Feedly OPML">here</a>.';
+    var drop = entries.appendChild(this.el('div', 'Drop your OPML here to import', 'drop'));
+    var stop = function(e) { e.preventDefault(); e.stopPropagation(); };
+    var toggle = function(e) { stop(e); drop.classList.toggle('hover'); };
+    drop.addEventListener("dragenter", toggle, false);
+    drop.addEventListener("dragover", stop);
+    drop.addEventListener("dragleave", toggle, false);
+    drop.addEventListener("drop", function(e) {
+        toggle(e);
+        var file = e.dataTransfer.files[0];
+        console.log(file);
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var opml = new OPML(e.target.result);
+            this.store.addFeeds(opml.parseUrls());
+        }.bind(this);
+        reader.readAsText(file);
+    }.bind(this), false);
 };

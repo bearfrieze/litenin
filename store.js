@@ -22,6 +22,13 @@ Store.prototype.queryFeed = function(url, callback) {
     feed.load(callback);
 };
 
+Store.prototype.addFeeds = function(urls) {
+    this.count = urls.length;
+    for (var i = 0; i < urls.length; i++) {
+        this.addFeed(urls[i]);
+    }
+};
+
 Store.prototype.addFeed = function(url) {
     if (url.indexOf('http') !== 0) url = 'http://' + url;
     this.queryFeed(url, function(result) {
@@ -36,7 +43,6 @@ Store.prototype.addFeed = function(url) {
         for (var i = this.initEntries; i < entries.length; i++) {
             entries[i].read = now;
         }
-        this.count = 1;
         this.loadFeed(result);
     }.bind(this));
 };
