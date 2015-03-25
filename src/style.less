@@ -1,7 +1,10 @@
-@coal: #333;
-@iron: #888;
-@silver: #CCC;
-@bone: #F6F6F6;
+@coal: rgba(0, 0, 0, 0.85);
+@iron: rgba(0, 0, 0, 0.5);
+@silver: rgba(0, 0, 0, 0.20);
+@bone: rgba(0, 0, 0, 0.05);
+
+@spacing: 3rem;
+@small: 0.85rem;
 
 .right {
     float: right;
@@ -13,7 +16,7 @@
 body {
     font: 1rem 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin: 0;
-    padding: 3rem;
+    padding: @spacing;
     margin: 0 auto;
     color: @coal;
     width: 65rem;
@@ -23,12 +26,12 @@ p {
     line-height: 1.5rem;
 }
 section:not(:last-child) {
-    margin-bottom: 3rem;
+    margin-bottom: @spacing;
 }
 input, button {
     display: inline-block;
     font: inherit;
-    font-size: 0.85rem;
+    font-size: @small;
     color: inherit;
     border: 1px solid @iron;
     background: transparent;
@@ -58,6 +61,7 @@ button:hover {
 ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 a {
     text-decoration: none;
@@ -66,10 +70,35 @@ a {
 a:visited, a.read {
     color: @iron;
 }
+p a {
+    text-decoration: underline;
+}
+#feeds ul {
+    margin-bottom: -0.75rem;
+    font-size: @small;
+    li, span {
+        display: inline-block;
+    }
+    li {
+        border: 1px solid @iron;
+        border-radius: 0.3em;
+        margin: 0 0.75rem 0.75rem 0;
+        span {
+            padding: 0.5em 1em;
+        }
+        button {
+            border-width: 0 0 0 1px;
+            border-radius: 0;
+        }
+    }
+}
 #error {
     border: 1px solid @iron;
     border-radius: 0.3em;
     padding: 1rem 1rem;
+}
+#entries ul + button {
+    margin-top: 1rem;
 }
 #entries li {
     display: block;
@@ -139,7 +168,8 @@ a:visited, a.read {
         display: block;
         width: 100%;
         margin: 0.5rem 0 0 0;
-        margin-top: 0.5rem;
+    }
+    input, button, #feeds ul {
         font-size: inherit;
     }
 }
