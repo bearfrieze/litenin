@@ -3,7 +3,7 @@ var getFile = function(url) {
     request.open('GET', url, false);
     request.send(null);
     return request.responseText;
-}
+};
 
 describe('OPML', function() {
     describe('parse', function() {

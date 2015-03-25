@@ -26,8 +26,8 @@ Store.prototype.addFeeds = function(urls) {
     this.count = urls.length;
     for (var i = 0; i < urls.length; i++) {
         this.addFeed(urls[i]);
-    };
-}
+    }
+};
 
 Store.prototype.addFeed = function(url) {
     if (url.indexOf('http') !== 0) url = 'http://' + url;
