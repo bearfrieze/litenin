@@ -1,3 +1,8 @@
+@coal: #333;
+@iron: #888;
+@silver: #CCC;
+@bone: #F6F6F6;
+
 .right {
     float: right;
 }
@@ -10,7 +15,7 @@ body {
     margin: 0;
     padding: 3rem;
     margin: 0 auto;
-    color: #333;
+    color: @coal;
     width: 65rem;
     box-sizing: border-box;
 }
@@ -25,7 +30,7 @@ input, button {
     font: inherit;
     font-size: 0.85rem;
     color: inherit;
-    border: 1px solid #888;
+    border: 1px solid @iron;
     background: transparent;
     box-sizing: border-box;
 }
@@ -47,7 +52,7 @@ button + button, input + button, span + button {
     margin-left: 0.5em;
 }
 button:hover {
-    background: #F6F6F6;
+    background: @bone;
     text-decoration: underline;
 }
 ul {
@@ -59,26 +64,26 @@ a {
     color: inherit;
 }
 a:visited, a.read {
-    color: #888;
+    color: @iron;
 }
 #error {
-    border: 1px solid #888;
+    border: 1px solid @iron;
     border-radius: 0.3em;
     padding: 1rem 1rem;
 }
 #entries li {
     display: block;
-    border-bottom: 1px solid #CCC;
+    border-bottom: 1px solid @silver;
 }
 #entries li:first-child {
-    border-top: 1px solid #CCC;
+    border-top: 1px solid @silver;
 }
 #entries li a {
     padding: 0.75rem 0;
     display: block;
 }
 #entries li a:hover {
-    background: #F6F6F6;
+    background: @bone;
 }
 #entries a:hover, #entries a:hover span {
     text-decoration: underline;
@@ -98,7 +103,17 @@ a:visited, a.read {
     width: 37rem;
 }
 #entries a span:not(.title) {
-    color: #888;
+    color: @iron;
+}
+.drop {
+    display: inline-block;
+    padding: 1.5rem 2rem;
+    border: 1px dashed @iron;
+    color: @iron;
+    box-sizing: border-box;
+}
+.drop.hover {
+    border-style: solid;
 }
 
 @media (max-width: 65rem) {

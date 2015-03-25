@@ -1,16 +1,5 @@
-OPML = function(url) {
-    this.url = url;
-};
-
-OPML.prototype.load = function() {
-    var request = new XMLHttpRequest();
-    request.open('GET', this.url, false);
-    request.send(null);
-    if (request.status !== 200) {
-        return false;
-    }
-    this.xml = request.responseText;
-    return true;
+OPML = function(text) {
+    this.xml = text;
 };
 
 OPML.prototype.parse = function() {
@@ -34,7 +23,6 @@ OPML.prototype.urls = function() {
 };
 
 OPML.prototype.parseUrls = function() {
-    if (!this.load()) return false;
     if (!this.parse()) return false;
     return this.urls();
 };

@@ -8,8 +8,7 @@ run = function() {
     var feedUrl = document.getElementById('feedUrl');
     var addFeed = document.getElementById('addFeed');
     var submit = function() {
-        store.addFeed(feedUrl.value);
-        store.loadFeeds();
+        store.addFeeds([feedUrl.value]);
         feedUrl.value = '';
     };
     addFeed.addEventListener('click', submit);

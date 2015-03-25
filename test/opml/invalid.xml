@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.0">
+    <head>
+        <title>OPML test</title>
+    </head>
+    <body>
+        <outline type="invalid" text="xkcd.com" title="xkcd.com" xmlUrl="http://www.xkcd.com/rss.xml" htmlUrl="http://xkcd.com/"/>
+        <outline type="invalid" text="The GitHub Blog" title="The GitHub Blog" xmlUrl="https://github.com/blog.atom" htmlUrl="https://github.com/blog"/>
+    </body>
+</opml>
