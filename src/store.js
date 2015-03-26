@@ -1,9 +1,11 @@
 Store = function() {
     this.feeds = this.getStore('feeds');
     if (!this.feeds) this.feeds = {};
+    this.read = this.getStore('read');
+    if (!this.read) this.read = {};
     this.initEntries = 5;
     this.numEntries = 20;
-    this.maxEntries = 100;
+    this.entries = {};
 };
 
 Store.prototype.setStore = function(key, store) {
@@ -32,16 +34,19 @@ Store.prototype.addFeeds = function(urls) {
 Store.prototype.addFeed = function(url) {
     if (url.indexOf('http') !== 0) url = 'http://' + url;
     this.queryFeed(url, function(result) {
-        if (result.error) return this.renderer.err(result.error.message);
-        this.feeds[result.feed.feedUrl] = {
-            entries: {},
+        if (result.error) {
+            this.count--;
+            return this.renderer.err(result.error.message + ": " + url);
+        }
+        var feed = this.feeds[result.feed.feedUrl] = {
             title: result.feed.title,
             url: result.feed.feedUrl
         };
         var entries = result.feed.entries;
         var now = new Date().getTime();
         for (var i = this.initEntries; i < entries.length; i++) {
-            entries[i].read = now;
+            var entry = entries[i];
+            this.read[this.entryHash(feed.url, entry.title, entry.publishedDate)] = now;
         }
         this.loadFeed(result);
     }.bind(this));
@@ -50,17 +55,6 @@ Store.prototype.addFeed = function(url) {
 Store.prototype.removeFeed = function(url) {
     delete this.feeds[url];
     this.setStore('feeds', this.feeds);
-};
-
-Store.prototype.cleanFeed = function(url) {
-    console.log('clearerere');
-    var sorted = [];
-    var entries = this.feeds[url].entries;
-    for (var key in entries) sorted.push(entries[key]);
-    sorted.sort(function(a, b) { return b.unix - a.unix; });
-    for (var i = this.maxEntries / 2; i < sorted.length; i++) {
-        delete entries[sorted[i].hash];
-    }
 };
 
 Store.prototype.clearFeeds = function() {
@@ -81,41 +75,40 @@ Store.prototype.loadFeed = function(result) {
     var entries = result.feed.entries;
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
-        entry.unix = new Date(entry.publishedDate).getTime();
-        entry.hash = this.entryHash(entry);
+        var hasDate = entry.publishedDate.length !== 0;
+        entry.unix = hasDate ? new Date(entry.publishedDate).getTime() : 0;
+        entry.hash = this.entryHash(feed.url, entry.title, entry.publishedDate);
         entry.feedTitle = feed.title;
         entry.feedUrl = feed.url;
-        if (entry.hash in feed.entries && feed.entries[entry.hash].read) continue;
-        feed.entries[entry.hash] = entry;
+        if (typeof this.read[entry.hash] !== "undefined") continue;
+        this.entries[entry.hash] = entry;
     }
-    var numEntries = Object.keys(feed.entries).length;
-    if (numEntries > this.maxEntries) this.cleanFeed(feed.url);
     if (--this.count === 0) {
         this.setStore('feeds', this.feeds);
+        this.setStore('read', this.read);
         this.updated = new Date();
         this.renderer.render();
     }
 };
 
 Store.prototype.readEntry = function(entry) {
-    if (!entry.read) entry.read = new Date().getTime();
-    this.setStore('feeds', this.feeds);
+    if (typeof this.read[entry.hash] === "undefined") {
+        this.read[entry.hash] = new Date().getTime();
+    }
+    this.setStore('read', this.read);
 };
 
 Store.prototype.readAll = function() {
     var now = new Date().getTime();
-    for (var url in this.feeds) {
-        for (var key in this.feeds[url].entries) {
-            var entry = this.feeds[url].entries[key];
-            if (!entry.read) entry.read = now;
-        }
+    for (var key in this.entries) {
+        this.read[key] = now;
     }
-    this.setStore('feeds', this.feeds);
+    this.setStore('read', this.read);
 };
 
-Store.prototype.entryHash = function(entry) {
+Store.prototype.entryHash = function(url, title, date) {
     // http://jsperf.com/hashcodelordvlad
-    var s = entry.title + entry.publishedDate;
+    var s = url + title + date;
     var hash = 0, i, char;
     if (s.length === 0) return hash;
     for (i = 0, l = s.length; i < l; i++) {
