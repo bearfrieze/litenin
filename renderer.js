@@ -40,14 +40,12 @@ Renderer.prototype.renderEntries = function() {
     var entries = document.getElementById('entries');
     entries.innerHTML = '';
     var unread = [];
-    for (var url in this.store.feeds) {
-        var feed = this.store.feeds[url];
-        for (var key in feed.entries) {
-            entry = feed.entries[key];
-            if (!entry.read) unread.push(entry);
+    for (var key in this.store.entries) {
+        entry = this.store.entries[key];
+        if (typeof this.store.read[entry.hash] === "undefined") {
+            unread.push(entry);
         }
     }
-
     if (unread.length <= 0) {
         var lastUpdate = this.el('p', '', 'lastUpdate');
         entries.appendChild(lastUpdate);
@@ -99,6 +97,7 @@ Renderer.prototype.el = function(type, text, cls) {
 };
 
 Renderer.prototype.timeSince = function(entry) {
+    if (entry.unix === 0) return "";
     var seconds = Math.floor((new Date().getTime() - entry.unix) / 1000);
     for (var i = 0; this.units.length; i++) {
         var unit = this.units[i];
@@ -137,7 +136,6 @@ Renderer.prototype.welcome = function() {
     drop.addEventListener("drop", function(e) {
         toggle(e);
         var file = e.dataTransfer.files[0];
-        console.log(file);
         var reader = new FileReader();
         reader.onload = function(e) {
             var opml = new OPML(e.target.result);
