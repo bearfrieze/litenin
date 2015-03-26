@@ -13,6 +13,21 @@
     display: none;
     float: left;
 }
+.ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.columns(@count) {
+    -webkit-column-count: @count; /* Chrome, Safari, Opera */
+    -moz-column-count: @count; /* Firefox */
+    column-count: @count;
+}
+.ruleWidth(@width) {
+    -webkit-column-rule-width: @width; /* Chrome, Safari, Opera */
+    -moz-column-rule-width: @width; /* Firefox */
+    column-rule-width: @width;
+}
 body {
     font: 1rem 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin: 0;
@@ -74,19 +89,24 @@ p a {
     text-decoration: underline;
 }
 #feeds ul {
+    .columns(3);
+    .ruleWidth(0.75rem);
     margin-bottom: -0.75rem;
     font-size: @small;
-    li, span {
+    span {
         display: inline-block;
     }
     li {
         border: 1px solid @iron;
         border-radius: 0.3em;
-        margin: 0 0.75rem 0.75rem 0;
+        margin-bottom: 0.75rem;
         span {
             padding: 0.5em 1em;
+            max-width: 12rem;
+            .ellipsis;
         }
         button {
+            float: right;
             border-width: 0 0 0 1px;
             border-radius: 0;
         }
@@ -119,10 +139,8 @@ p a {
 }
 #entries a span {
     display: inline-block;
-    overflow: hidden;
     margin: 0;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    .ellipsis;
 }
 #entries a span.feedTitle {
     width: 10rem;
@@ -149,6 +167,9 @@ p a {
     body {
         width: 100%;
     }
+    #feeds ul {
+        .columns(2);
+    }
     #entries a span:not(.title) {
         display: none;
     }
@@ -160,6 +181,9 @@ p a {
 @media (max-width: 45rem) {
     body {
         padding: 1rem;
+    }
+    #feeds ul {
+        .columns(1);
     }
     section:not(:last-of-type) {
         margin-bottom: 2rem;
