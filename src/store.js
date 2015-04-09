@@ -3,8 +3,6 @@ Store = function() {
     if (!this.feeds) this.feeds = {};
     this.read = this.getStore('read');
     if (!this.read) this.read = {};
-    this.initEntries = 5;
-    this.numEntries = 20;
     this.entries = {};
 };
 
@@ -17,39 +15,41 @@ Store.prototype.getStore = function(key) {
     return store && JSON.parse(store);
 };
 
-Store.prototype.queryFeed = function(url, callback) {
-    var feed = new google.feeds.Feed(url);
-    feed.includeHistoricalEntries();
-    feed.setNumEntries(this.numEntries);
-    feed.load(callback);
+Store.prototype.queryFeeds = function(urls, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function (argument) {
+        callback(JSON.parse(xhr.responseText));
+    };
+    xhr.open("post", "http://localhost:8666/", true);
+    xhr.send(JSON.stringify(urls));
 };
 
 Store.prototype.addFeeds = function(urls) {
     this.count = urls.length;
     for (var i = 0; i < urls.length; i++) {
-        this.addFeed(urls[i]);
-    }
-};
-
-Store.prototype.addFeed = function(url) {
-    if (url.indexOf('http') !== 0) url = 'http://' + url;
-    this.queryFeed(url, function(result) {
-        if (result.error) {
-            this.count--;
-            return this.renderer.err(result.error.message + ": " + url);
+        if (urls[i].indexOf('http') !== 0) urls[i] = 'http://' + urls[i];
+    };
+    this.queryFeeds(urls, function(feeds) {
+        for (var i = 0; i < feeds.length; i++) {
+            var entries = feeds[i].items;
+            if (!entries) {
+                --this.count;
+                continue;
+            }
+            var feed = this.feeds[feeds[i].url] = {
+                title: feeds[i].title,
+                url: feeds[i].url
+            };
+            var now = new Date().getTime();
+            for (var j = this.initEntries; j < entries.length; j++) {
+                var entry = entries[j];
+                this.read[this.entryHash(feed.url, entry.title, entry.pubDate)] = now;
+            }
+            this.loadFeed(feeds[i]);
         }
-        var feed = this.feeds[result.feed.feedUrl] = {
-            title: result.feed.title,
-            url: result.feed.feedUrl
-        };
-        var entries = result.feed.entries;
-        var now = new Date().getTime();
-        for (var i = this.initEntries; i < entries.length; i++) {
-            var entry = entries[i];
-            this.read[this.entryHash(feed.url, entry.title, entry.publishedDate)] = now;
-        }
-        this.loadFeed(result);
-    }.bind(this));
+        this.setStore('feeds', this.feeds);
+        this.setStore('read', this.read);
+    }.bind(this))
 };
 
 Store.prototype.removeFeed = function(url) {
@@ -63,29 +63,31 @@ Store.prototype.clearFeeds = function() {
 };
 
 Store.prototype.loadFeeds = function() {
-    this.count = Object.keys(this.feeds).length;
+    var urls = Object.keys(this.feeds)
+    if (urls.length === 0) return;
+    this.count = urls.length;
     if (this.count <= 0) this.renderer.welcome();
-    for (var url in this.feeds) {
-        this.queryFeed(url, this.loadFeed.bind(this));
-    }
+    this.queryFeeds(urls, function(feeds) {
+        for (var i = 0; i < feeds.length; i++) {
+            this.loadFeed(feeds[i]);
+        }
+    }.bind(this))
 };
 
-Store.prototype.loadFeed = function(result) {
-    var feed = this.feeds[result.feed.feedUrl];
-    var entries = result.feed.entries;
+Store.prototype.loadFeed = function(feed) {
+    console.log(feed);
+    var entries = feed.items;
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
-        var hasDate = entry.publishedDate.length !== 0;
-        entry.unix = hasDate ? new Date(entry.publishedDate).getTime() : 0;
-        entry.hash = this.entryHash(feed.url, entry.title, entry.publishedDate);
+        var hasDate = entry.pubDate.length !== 0;
+        entry.unix = hasDate ? new Date(entry.pubDate).getTime() : 0;
+        entry.hash = this.entryHash(feed.url, entry.title, entry.pubDate);
         entry.feedTitle = feed.title;
         entry.feedUrl = feed.url;
         if (typeof this.read[entry.hash] !== "undefined") continue;
         this.entries[entry.hash] = entry;
     }
     if (--this.count === 0) {
-        this.setStore('feeds', this.feeds);
-        this.setStore('read', this.read);
         this.updated = new Date();
         this.renderer.render();
     }

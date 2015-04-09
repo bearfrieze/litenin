@@ -97,7 +97,7 @@ Renderer.prototype.el = function(type, text, cls) {
 };
 
 Renderer.prototype.timeSince = function(entry) {
-    if (entry.unix === 0) return "";
+    if (!entry.unix) return "";
     var seconds = Math.floor((new Date().getTime() - entry.unix) / 1000);
     for (var i = 0; this.units.length; i++) {
         var unit = this.units[i];
