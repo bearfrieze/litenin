@@ -1,4 +1,4 @@
 [submodule "build"]
     path = build
-    url = git@github.com:bearfrieze/lightning.git
+    url = git@github.com:bearfrieze/litenin.git
     branch = gh-pages
