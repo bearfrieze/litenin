@@ -18,16 +18,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-.columns(@count) {
-    -webkit-column-count: @count; /* Chrome, Safari, Opera */
-    -moz-column-count: @count; /* Firefox */
-    column-count: @count;
-}
-.ruleWidth(@width) {
-    -webkit-column-rule-width: @width; /* Chrome, Safari, Opera */
-    -moz-column-rule-width: @width; /* Firefox */
-    column-rule-width: @width;
-}
 body {
     font: 1rem 'Helvetica Neue', Helvetica, Arial, sans-serif;
     margin: 0;
@@ -89,23 +79,23 @@ p a {
     text-decoration: underline;
 }
 #feeds ul {
-    .columns(3);
-    .ruleWidth(0.75rem);
     margin-bottom: -0.75rem;
     font-size: @small;
-    span {
-        display: inline-block;
-    }
     li {
+        display: inline-block;
         border: 1px solid @iron;
         border-radius: 0.3em;
         margin-bottom: 0.75rem;
-        span {
+        margin-right: 0.75rem;
+        .title {
+            display: block;
+            float: left;
             padding: 0.5em 1em;
             max-width: 12rem;
             .ellipsis;
         }
-        button {
+        .remove {
+            display: block;
             float: right;
             border-width: 0 0 0 1px;
             border-radius: 0;
@@ -117,40 +107,42 @@ p a {
     border-radius: 0.3em;
     padding: 1rem 1rem;
 }
-#entries ul + button {
+#items ul + button {
     margin-top: 1rem;
 }
-#entries li {
+#items li {
     display: block;
     border-bottom: 1px solid @silver;
 }
-#entries li:first-child {
+#items li:first-child {
     border-top: 1px solid @silver;
 }
-#entries li a {
+#items li a {
     padding: 0.75rem 0;
     display: block;
 }
-#entries li a:hover {
+#items li a:hover {
     background: @bone;
 }
-#entries a:hover, #entries a:hover span {
+#items a:hover, #items a:hover span {
     text-decoration: underline;
 }
-#entries a span {
+#items a span {
     display: inline-block;
     margin: 0;
     .ellipsis;
-}
-#entries a span.feedTitle {
-    width: 10rem;
-    margin-left: 2rem;
-}
-#entries a span.title {
-    width: 37rem;
-}
-#entries a span:not(.title) {
-    color: @iron;
+    &:nth-child(2) {
+        margin-left: 2rem;
+    }
+    &:not(.title) {
+        color: @iron;
+    }
+    &.feedTitle {
+        width: 10rem;
+    }
+    &.title {
+        width: 37rem;
+    }
 }
 .drop {
     display: inline-block;
@@ -167,23 +159,22 @@ p a {
     body {
         width: 100%;
     }
-    #feeds ul {
-        .columns(2);
-    }
-    #entries a span:not(.title) {
-        display: none;
-    }
-    #entries a span.title {
-        width: 100%;
+    #items a span {
+        &:not(.title) {
+            display: none;
+        }
+        &:nth-child(2) {
+            margin-left: 0;
+        }
+        &.title {
+            width: 100%;
+        }
     }
 }
 
 @media (max-width: 45rem) {
     body {
         padding: 1rem;
-    }
-    #feeds ul {
-        .columns(1);
     }
     section:not(:last-of-type) {
         margin-bottom: 2rem;

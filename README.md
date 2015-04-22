@@ -1,17 +1,17 @@
-# Lightning
+# Litenin
 
-Lightning is a very light and shockingly fast feed reader.
+Litenin is a very light and shockingly fast feed reader.
 
 ## Goal
 
-The goal of Lightning is to create a very light and shockingly fast feed reader.
+The goal of Litenin is to create a very light and shockingly fast feed reader.
 
 - All features are carefully chosen and should be essential to the average user. 
 - Speed is of high priority. Ideally solutions should be both simple and performant, but sometimes faster solutions might be chosen at the expense of simplicity.
 
 ## Concept
 
-Lightning is a thin client written in JavaScript that runs in the users browser. This client is responsible for loading feeds and displaying them to the user. Feeds are provided by the [Google Feeds API](https://developers.google.com/feed/). Persistence is achieved with [localStorage](http://diveintohtml5.info/storage.html).
+Litenin is a thin client written in JavaScript that runs in the users browser. This client is responsible for loading feeds and displaying them to the user. Feeds are provided by the [Google Feeds API](https://developers.google.com/feed/). Persistence is achieved with [localStorage](http://diveintohtml5.info/storage.html).
 
 ## Motivation
 

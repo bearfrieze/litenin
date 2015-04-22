@@ -1,9 +1,9 @@
 {
-  "name": "Lightning",
-  "description": "Lightning is a very light and shockingly fast feed reader.",
+  "name": "Litenin",
+  "description": "Litenin is a very light and shockingly fast feed reader.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bearfrieze/Lightning.git"
+    "url": "https://github.com/bearfrieze/litenin.git"
   },
   "version": "0.1.0",
   "devDependencies": {

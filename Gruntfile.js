@@ -1,5 +1,4 @@
 module.exports = function(grunt) {
-    var port = 8080;
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
@@ -9,7 +8,7 @@ module.exports = function(grunt) {
             test: {
                 options: {
                     run: true,
-                    urls: ['http://localhost:' + port + '/test/test.html']
+                    urls: ['http://localhost:' + 8080 + '/test/test.html']
                 }
             }
         },
@@ -36,7 +35,16 @@ module.exports = function(grunt) {
                     dest: 'dev/',
                     filter: 'isFile',
                     flatten: true
-                }]
+                }],
+                options: {
+                    process: function(content, path) {
+                        return grunt.template.process(content, {
+                            data: {
+                                static: 'http://192.168.59.103:8081/'
+                            }
+                        });
+                    }
+                }
             },
             build: {
                 files: [{
@@ -45,7 +53,16 @@ module.exports = function(grunt) {
                     dest: 'build/',
                     filter: 'isFile',
                     flatten: true
-                }]
+                }],
+                options: {
+                    process: function(content, path) {
+                        return grunt.template.process(content, {
+                            data: {
+                                static: 'http://static.liten.in/'
+                            }
+                        });
+                    }
+                }
             }
         },
         connect: {
@@ -56,19 +73,28 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            debug: {
-                files: ['Gruntfile.js', 'src/*', 'test/*'],
-                tasks: ['jshint', 'mocha', 'less:dev', 'copy:dev'],
-                options: {
-                    spawn: false,
-                    livereload: true
-                }
-            },
             live: {
                 files: ['Gruntfile.js', 'src/*', 'test/*'],
                 tasks: ['less:dev', 'copy:dev'],
                 options: {
+                    atBegin: true,
                     spawn: false,
+                    livereload: true
+                }
+            },
+            debug: {
+                files: ['Gruntfile.js', 'src/*', 'test/*'],
+                tasks: ['jshint', 'mocha', 'less:dev', 'copy:dev'],
+                options: {
+                    atBegin: true,
+                    livereload: true
+                }
+            },
+            build: {
+                files: ['Gruntfile.js', 'src/*', 'test/*'],
+                tasks: ['jshint', 'mocha', 'less:build', 'copy:build'],
+                options: {
+                    atBegin: true,
                     livereload: true
                 }
             }
@@ -80,8 +106,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-connect');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.registerTask('dev', ['connect', 'jshint', 'mocha', 'less:dev', 'copy:dev']);
-    grunt.registerTask('build', ['less:build', 'copy:build']);
-    grunt.registerTask('debug', ['dev', 'watch:debug']);
-    grunt.registerTask('default', ['connect', 'watch:live']);
+    grunt.registerTask('live', ['connect', 'watch:live']);
+    grunt.registerTask('debug', ['connect', 'watch:debug']);
+    grunt.registerTask('build', ['connect', 'watch:build']);
+    grunt.registerTask('default', 'live');
 };

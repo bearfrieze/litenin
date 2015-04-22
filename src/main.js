@@ -29,4 +29,4 @@ run = function() {
     }.bind(store));
 };
 
-run();
+document.addEventListener('DOMContentLoaded', run);
