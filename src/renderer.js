@@ -114,7 +114,7 @@ Renderer.prototype.timePretty = function(seconds) {
     var result = divided + " " + unit.name;
     if (divided != 1) result += 's';
     return result + " ago";
-}
+};
 
 Renderer.prototype.err = function(message) {
     console.log(message);

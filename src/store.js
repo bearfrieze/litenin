@@ -52,7 +52,6 @@ Store.prototype.loadFeeds = function() {
     var urls = Object.keys(this.feeds);
     if (urls.length <= 0) return this.renderer.welcome();
     this.queryFeeds(urls, function(feeds) {
-        console.log(feeds);
         for (var url in feeds) {
             this.loadFeed(url, feeds[url]);
         }
@@ -63,10 +62,17 @@ Store.prototype.loadFeeds = function() {
 
 Store.prototype.loadFeed = function(url, feed) {
     if (feed === false) {
-        this.removeFeed(url);
+        delete this.feeds[url];
         return;
     } else if (feed === true) {
+        this.renderer.err("I have never seen this feed before! Updating in in 3 seconds.");
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(this.loadFeeds.bind(this), 3000);
         return;
+    }
+    if (url !== feed.url) {
+        this.feeds[feed.url] = this.feeds[url];
+        delete this.feeds[url];
     }
     var items = feed.items;
     var now = Math.ceil(new Date().getTime() / 1000);
@@ -85,7 +91,6 @@ Store.prototype.loadFeed = function(url, feed) {
         var yesterday = now - 24 * 60 * 60;
         items = items.forEach(function(item) {
             if (!item.unix || item.unix < yesterday) {
-                console.log(item);
                 this.read[item.guid] = now;
             }
         }.bind(this));
