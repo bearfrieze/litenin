@@ -11,7 +11,7 @@ The goal of Litenin is to create a very light and shockingly fast feed reader.
 
 ## Concept
 
-Litenin is a thin client written in JavaScript that runs in the users browser. This client is responsible for loading feeds and displaying them to the user. Feeds are provided by the [Google Feeds API](https://developers.google.com/feed/). Persistence is achieved with [localStorage](http://diveintohtml5.info/storage.html).
+Litenin is a thin client written in JavaScript that runs in the users browser. This client is responsible for loading feeds and displaying them to the user. Feeds are provided by [Nimbus](https://github.com/bearfrieze/nimbus). Persistence is achieved with [localStorage](http://diveintohtml5.info/storage.html).
 
 ## Motivation
 
