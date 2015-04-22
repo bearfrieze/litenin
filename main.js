@@ -29,5 +29,4 @@ run = function() {
     }.bind(store));
 };
 
-google.setOnLoadCallback(run);
-google.load("feeds", "1", {nocss: true});
+document.addEventListener('DOMContentLoaded', run);

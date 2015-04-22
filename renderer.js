@@ -4,13 +4,14 @@ Renderer = function() {
         {name: 'month', seconds: 60 * 60 * 24 * 30.42},
         {name: 'day', seconds: 60 * 60 * 24},
         {name: 'hour', seconds: 60 * 60},
-        {name: 'minute', seconds: 60}
+        {name: 'minute', seconds: 60},
+        {name: 'second', seconds: 1}
     ];
 };
 
 Renderer.prototype.render = function() {
     this.renderFeeds();
-    this.renderEntries();
+    this.renderItems();
 };
 
 Renderer.prototype.renderFeeds = function() {
@@ -26,34 +27,33 @@ Renderer.prototype.renderFeeds = function() {
 Renderer.prototype.renderFeed = function(feed) {
     var li = this.el('li');
     li.appendChild(this.el('span', feed.title, 'title'));
-    var remove = this.el('button', '✕', 'remove');
+    var remove = li.appendChild(this.el('button', '✕', 'remove'));
     remove.addEventListener('click', function() {
         this.store.removeFeed(feed.url);
         this.render();
     }.bind(this));
-    li.appendChild(remove);
     return li;
 };
 
-Renderer.prototype.renderEntries = function() {
-    var entry;
-    var entries = document.getElementById('entries');
-    entries.innerHTML = '';
+Renderer.prototype.renderItems = function() {
+    var item;
+    var items = document.getElementById('items');
+    items.innerHTML = '';
     var unread = [];
-    for (var key in this.store.entries) {
-        entry = this.store.entries[key];
-        if (typeof this.store.read[entry.hash] === "undefined") {
-            unread.push(entry);
+    for (var key in this.store.items) {
+        item = this.store.items[key];
+        if (typeof this.store.read[item.guid] === "undefined") {
+            unread.push(item);
         }
     }
     if (unread.length <= 0) {
         var lastUpdate = this.el('p', '', 'lastUpdate');
-        entries.appendChild(lastUpdate);
-        var base = 'No unread entries available, last update ';
+        items.appendChild(lastUpdate);
+        var base = 'No unread items available, last update ';
         if (this.interval) clearInterval(this.interval);
         var update = function() {
-            var seconds = Math.round((new Date() - this.store.updated) / 1000);
-            lastUpdate.innerHTML = base + seconds + " seconds ago.";
+            var seconds = Math.ceil((new Date() - this.store.updated) / 1000);
+            lastUpdate.innerHTML = base + this.timePretty(seconds);
         }.bind(this);
         update();
         this.interval = setInterval(update, 1000);
@@ -63,28 +63,28 @@ Renderer.prototype.renderEntries = function() {
     unread.sort(function(a, b) { return b.unix - a.unix; });
     var ul = this.el('ul');
     for (var i = 0; i < unread.length; i++) {
-        entry = unread[i];
-        ul.appendChild(this.renderEntry(entry));
+        item = unread[i];
+        ul.appendChild(this.renderItem(item));
     }
-    entries.appendChild(ul);
+    items.appendChild(ul);
     var readAll = this.el('button', 'Mark all as read', 'huge');
     readAll.addEventListener('click', function() {
         this.store.readAll();
-        this.renderEntries();
+        this.renderItems();
     }.bind(this));
-    entries.appendChild(readAll);
+    items.appendChild(readAll);
 };
 
-Renderer.prototype.renderEntry = function(entry) {
+Renderer.prototype.renderItem = function(item) {
     var li = this.el('li');
     var a = li.appendChild(this.el('a'));
-    a.href = entry.link;
-    a.appendChild(this.el('span', entry.title, 'title'));
-    a.appendChild(this.el('span', entry.feedTitle, 'feedTitle'));
-    a.appendChild(this.el('span', this.timeSince(entry), 'publishedDate right'));
-    a.addEventListener('click', function() {
-        this.store.readEntry(entry);
-        this.renderEntries();
+    a.href = item.link;
+    a.appendChild(this.el('span', item.feedTitle, 'feedTitle'));
+    a.appendChild(this.el('span', item.title, 'title'));
+    a.appendChild(this.el('span', this.timeSince(item), 'publishedDate right'));
+    a.addEventListener('click', function(e) {
+        this.store.readItem(item);
+        a.classList.add('read');
     }.bind(this));
     return li;
 };
@@ -96,18 +96,24 @@ Renderer.prototype.el = function(type, text, cls) {
     return el;
 };
 
-Renderer.prototype.timeSince = function(entry) {
-    if (entry.unix === 0) return "";
-    var seconds = Math.floor((new Date().getTime() - entry.unix) / 1000);
-    for (var i = 0; this.units.length; i++) {
-        var unit = this.units[i];
-        var divided = Math.floor(seconds / unit.seconds);
+Renderer.prototype.timeSince = function(item) {
+    if (!item.unix) return "";
+    var seconds = Math.ceil(new Date().getTime() / 1000) - item.unix;
+    return this.timePretty(seconds);
+};
+
+Renderer.prototype.timePretty = function(seconds) {
+    var unit, divided;
+    for (var i = 0; i < this.units.length; i++) {
+        unit = this.units[i];
+        divided = Math.floor(seconds / unit.seconds);
         if (divided >= 1) {
-            var result = divided + " " + unit.name;
-            if (divided > 1) result += 's';
-            return result + " ago";
+            break;
         }
     }
+    var result = divided + " " + unit.name;
+    if (divided != 1) result += 's';
+    return result + " ago";
 };
 
 Renderer.prototype.err = function(message) {
@@ -123,11 +129,11 @@ Renderer.prototype.err = function(message) {
 Renderer.prototype.welcome = function() {
     var feeds = document.getElementById('feeds');
     feeds.innerHTML = '<p>You have no feeds to manage.</p>';
-    var entries = document.getElementById('entries');
-    entries.innerHTML = '<p>Welcome to Lightning, a very light and shockingly fast feed reader.</p>';
-    entries.innerHTML += '<p>Please add your favourite feed to get started, or import your feeds from OPML below.</p>';
-    entries.innerHTML += '<p>If you are using <a href="http://feedly.com" title="Feedly">Feedly</a> you can get your OPML <a href="http://feedly.com/i/opml" title="Export Feedly OPML">here</a>.';
-    var drop = entries.appendChild(this.el('div', 'Drop your OPML here to import', 'drop'));
+    var items = document.getElementById('items');
+    items.innerHTML = '<p>Welcome to Litenin, a very light and shockingly fast feed reader.</p>';
+    items.innerHTML += '<p>Please add your favourite feed to get started, or import your feeds from OPML below.</p>';
+    items.innerHTML += '<p>If you are using <a href="http://feedly.com" title="Feedly">Feedly</a> you can get your OPML <a href="http://feedly.com/i/opml" title="Export Feedly OPML">here</a>.';
+    var drop = items.appendChild(this.el('div', 'Drop your OPML here to import', 'drop'));
     var stop = function(e) { e.preventDefault(); e.stopPropagation(); };
     var toggle = function(e) { stop(e); drop.classList.toggle('hover'); };
     drop.addEventListener("dragenter", toggle, false);
