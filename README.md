@@ -4,7 +4,7 @@ Litenin is a very light and shockingly fast feed reader.
 
 ## Motivation
 
-I grew really frustrated with Feedly's very long load times (I frequently waited 10 seconds or more to read the news). I tried out a couple of reader for OSX, but I found it very inconvinient jumping back and forth between the reader and the browser (I don't like browsing in my reader).
+I grew really frustrated with Feedly's very long load times (I frequently waited 10 seconds or more to read the news). I tried out a couple of readers/aggregators for OSX, but I found it very inconvinient jumping back and forth between the reader and the browser (I don't like browsing in my reader).
 
 ## Goal
 
