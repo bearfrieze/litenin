@@ -17,11 +17,19 @@ Renderer.prototype.render = function() {
 Renderer.prototype.renderFeeds = function() {
     var feeds = document.getElementById('feeds');
     feeds.innerHTML = '';
-    var ul = feeds.appendChild(this.el('ul'));
+    var s1 = feeds.appendChild(this.el('section'));
+    var ul = s1.appendChild(this.el('ul'));
     for (var url in this.store.feeds) {
         var feed = this.store.feeds[url];
         ul.appendChild(this.renderFeed(feed));
     }
+    var s2 = feeds.appendChild(this.el('section'));
+    var clear = s2.appendChild(this.el('button', 'Clear all'));
+    clear.addEventListener('click', this.store.clearFeeds.bind(this.store));
+    var opml = s2.appendChild(this.el('button', 'Export OPML'));
+    opml.addEventListener('click', function() {
+        saveAs(this.store.getOPML(), "opml.xml");
+    }.bind(this));
 };
 
 Renderer.prototype.renderFeed = function(feed) {
@@ -42,7 +50,7 @@ Renderer.prototype.renderItems = function() {
     var unread = [];
     for (var key in this.store.items) {
         item = this.store.items[key];
-        if (typeof this.store.read[item.guid] === "undefined") {
+        if (typeof this.store.read[item.guid] === 'undefined') {
             unread.push(item);
         }
     }
@@ -79,6 +87,7 @@ Renderer.prototype.renderItem = function(item) {
     var li = this.el('li');
     var a = li.appendChild(this.el('a'));
     a.href = item.url;
+    a.target = '_blank';
     a.appendChild(this.el('span', item.feedTitle, 'feedTitle'));
     a.appendChild(this.el('span', item.title, 'title'));
     a.appendChild(this.el('span', this.timeSince(item), 'publishedDate right'));
@@ -97,7 +106,7 @@ Renderer.prototype.el = function(type, text, cls) {
 };
 
 Renderer.prototype.timeSince = function(item) {
-    if (!item.unix) return "";
+    if (!item.unix) return '';
     var seconds = Math.ceil(new Date().getTime() / 1000) - item.unix;
     return this.timePretty(seconds);
 };
@@ -111,9 +120,9 @@ Renderer.prototype.timePretty = function(seconds) {
             break;
         }
     }
-    var result = divided + " " + unit.name;
+    var result = divided + ' ' + unit.name;
     if (divided != 1) result += 's';
-    return result + " ago";
+    return result + ' ago';
 };
 
 Renderer.prototype.err = function(message) {
@@ -136,10 +145,10 @@ Renderer.prototype.welcome = function() {
     var drop = items.appendChild(this.el('div', 'Drop your OPML here to import', 'drop'));
     var stop = function(e) { e.preventDefault(); e.stopPropagation(); };
     var toggle = function(e) { stop(e); drop.classList.toggle('hover'); };
-    drop.addEventListener("dragenter", toggle, false);
-    drop.addEventListener("dragover", stop);
-    drop.addEventListener("dragleave", toggle, false);
-    drop.addEventListener("drop", function(e) {
+    drop.addEventListener('dragenter', toggle, false);
+    drop.addEventListener('dragover', stop);
+    drop.addEventListener('dragleave', toggle, false);
+    drop.addEventListener('drop', function(e) {
         toggle(e);
         var file = e.dataTransfer.files[0];
         var reader = new FileReader();
