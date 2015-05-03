@@ -79,6 +79,7 @@ Renderer.prototype.renderItem = function(item) {
     var li = this.el('li');
     var a = li.appendChild(this.el('a'));
     a.href = item.url;
+    a.target = "_blank";
     a.appendChild(this.el('span', item.feedTitle, 'feedTitle'));
     a.appendChild(this.el('span', item.title, 'title'));
     a.appendChild(this.el('span', this.timeSince(item), 'publishedDate right'));
