@@ -34,6 +34,7 @@ Store.prototype.addFeeds = function(urls) {
             loaded: false
         };
     }
+    this.setStore('feeds', this.feeds);
     this.loadFeeds();
 };
 
@@ -87,11 +88,12 @@ Store.prototype.loadFeed = function(url, feed) {
     if (!localFeed.loaded) {
         localFeed.title = feed.title;
         var yesterday = now - 24 * 60 * 60;
-        items = items.forEach(function(item) {
+        for (var i = 5; i < items.length; i++) {
+            var item = items[i];
             if (!item.unix || item.unix < yesterday) {
                 this.read[item.guid] = now;
             }
-        }.bind(this));
+        }
         localFeed.loaded = true;
         this.setStore('read', this.read);
         this.setStore('feeds', this.feeds);
