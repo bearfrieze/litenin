@@ -4,7 +4,7 @@ Store = function() {
     this.read = this.getStore('read');
     if (!this.read) this.read = {};
     this.items = {};
-    this.static = "<%= static %>";
+    this.static = '<%= static %>';
 };
 
 Store.prototype.setStore = function(key, store) {
@@ -21,7 +21,7 @@ Store.prototype.queryFeeds = function(urls, callback) {
     xhr.onload = function (argument) {
         callback(JSON.parse(xhr.responseText));
     };
-    xhr.open("POST", this.static, true);
+    xhr.open('POST', this.static, true);
     xhr.send(JSON.stringify(urls));
 };
 
@@ -46,6 +46,10 @@ Store.prototype.removeFeed = function(url) {
 Store.prototype.clearFeeds = function() {
     this.feeds = {};
     this.setStore('feeds', this.feeds);
+    this.read = {};
+    this.setStore('read', this.read);
+    this.items = {};
+    this.loadFeeds();
 };
 
 Store.prototype.loadFeeds = function() {
@@ -62,11 +66,11 @@ Store.prototype.loadFeeds = function() {
 
 Store.prototype.loadFeed = function(url, feed) {
     if (feed === false) {
-        this.renderer.err(url + " is not a valid feed.");
+        this.renderer.err(url + ' is not a valid feed.');
         this.removeFeed(url);
         return;
     } else if (feed === true) {
-        this.renderer.err("I have never seen this feed before! Please wait a while and then refresh.");
+        this.renderer.err('I have never seen this feed before! Please wait a while and then refresh.');
         return;
     }
     if (url !== feed.url) {
@@ -101,7 +105,7 @@ Store.prototype.loadFeed = function(url, feed) {
 };
 
 Store.prototype.readItem = function(item) {
-    if (typeof this.read[item.guid] === "undefined") {
+    if (typeof this.read[item.guid] === 'undefined') {
         this.read[item.guid] = Math.ceil(new Date().getTime() / 1000);
     }
     this.setStore('read', this.read);
@@ -114,3 +118,20 @@ Store.prototype.readAll = function() {
     }
     this.setStore('read', this.read);
 };
+
+Store.prototype.getOPML = function() {
+    var opml = [];
+    opml.push('<?xml version="1.0" encoding="UTF-8"?>\n');
+    opml.push('<opml version="1.0">\n');
+    opml.push('\t<head>\n');
+    opml.push('\t\t<title>Litenin feed subscriptions</title>\n');
+    opml.push('\t</head>\n');
+    opml.push('\t<body>\n');
+    for (var key in this.feeds) {
+        var feed = this.feeds[key];
+        opml.push('\t\t<outline type="rss" text="' + feed.title + '" title="' + feed.title + '" xmlUrl="' + feed.url + '" htmlUrl="' + feed.url + '" />\n');
+    }
+    opml.push('\t</body>\n');
+    opml.push('</opml>\n');
+    return new Blob(opml, {type: 'application/xml;charset=utf-8'});
+}
