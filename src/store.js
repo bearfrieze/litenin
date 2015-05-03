@@ -134,4 +134,4 @@ Store.prototype.getOPML = function() {
     opml.push('\t</body>\n');
     opml.push('</opml>\n');
     return new Blob(opml, {type: 'application/xml;charset=utf-8'});
-}
+};
