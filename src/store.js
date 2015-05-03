@@ -34,7 +34,6 @@ Store.prototype.addFeeds = function(urls) {
             loaded: false
         };
     }
-    this.setStore('feeds', this.feeds);
     this.loadFeeds();
 };
 
@@ -62,7 +61,8 @@ Store.prototype.loadFeeds = function() {
 
 Store.prototype.loadFeed = function(url, feed) {
     if (feed === false) {
-        delete this.feeds[url];
+        this.renderer.err(url + " is not a valid feed.");
+        this.removeFeed(url);
         return;
     } else if (feed === true) {
         this.renderer.err("I have never seen this feed before! Please wait a while and then refresh.");
@@ -70,7 +70,7 @@ Store.prototype.loadFeed = function(url, feed) {
     }
     if (url !== feed.url) {
         this.feeds[feed.url] = this.feeds[url];
-        delete this.feeds[url];
+        this.removeFeed(url);
     }
     var items = feed.items;
     var now = Math.ceil(new Date().getTime() / 1000);
@@ -93,8 +93,8 @@ Store.prototype.loadFeed = function(url, feed) {
             }
         }.bind(this));
         localFeed.loaded = true;
-        this.setStore('feeds', this.feeds);
         this.setStore('read', this.read);
+        this.setStore('feeds', this.feeds);
     }
 };
 
