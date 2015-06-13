@@ -3,6 +3,8 @@ Store = function() {
     if (!this.feeds) this.feeds = {};
     this.read = this.getStore('read');
     if (!this.read) this.read = {};
+    this.teasers = this.getStore('teasers');
+    if (this.teasers === undefined) this.teasers = false;
     this.items = {};
     this.static = 'http://static.liten.in/';
 };
@@ -134,4 +136,9 @@ Store.prototype.getOPML = function() {
     opml.push('\t</body>\n');
     opml.push('</opml>\n');
     return new Blob(opml, {type: 'application/xml;charset=utf-8'});
+};
+
+Store.prototype.toggleTeasers = function() {
+    this.teasers = !this.teasers;
+    this.setStore('teasers', this.teasers);
 };

@@ -7,11 +7,18 @@ Renderer = function() {
         {name: 'minute', seconds: 60},
         {name: 'second', seconds: 1}
     ];
+    this.teaserLimit = 300;
 };
 
 Renderer.prototype.render = function() {
+    this.renderNavigation();
     this.renderFeeds();
     this.renderItems();
+};
+
+Renderer.prototype.renderNavigation = function() {
+    var toggleTeasers = document.getElementById('toggleTeasers');
+    toggleTeasers.innerHTML = this.store.teasers ? "Disable teasers" : "Enable teasers";
 };
 
 Renderer.prototype.renderFeeds = function() {
@@ -34,7 +41,8 @@ Renderer.prototype.renderFeeds = function() {
 
 Renderer.prototype.renderFeed = function(feed) {
     var li = this.el('li');
-    li.appendChild(this.el('span', feed.title, 'title'));
+    var a = li.appendChild(this.el('a', feed.title, 'title'));
+    a.href = feed.url;
     var remove = li.appendChild(this.el('button', '✕', 'remove'));
     remove.addEventListener('click', function() {
         this.store.removeFeed(feed.url);
@@ -88,9 +96,16 @@ Renderer.prototype.renderItem = function(item) {
     var a = li.appendChild(this.el('a'));
     a.href = item.url;
     a.target = '_blank';
-    a.appendChild(this.el('span', item.feedTitle, 'feedTitle'));
-    a.appendChild(this.el('span', item.title, 'title'));
-    a.appendChild(this.el('span', this.timeSince(item), 'publishedDate right'));
+    var feedTitle = a.appendChild(this.el('span', item.feedTitle, 'feedTitle'));
+    var title = a.appendChild(this.el('span', item.title, 'title'));
+    var publishedDate = a.appendChild(this.el('span', this.timeSince(item), 'publishedDate right'));
+    if (this.store.teasers) {
+        title.style.fontWeight = 'bold';
+        if (item.teaser.length > this.teaserLimit)
+            item.teaser = item.teaser.substring(0, this.teaserLimit - 3).trim() + "...";
+        if (item.teaser.length > 0)
+            a.appendChild(this.el('span', item.teaser, 'teaser'));
+    }
     a.addEventListener('click', function(e) {
         this.store.readItem(item);
         a.classList.add('read');
