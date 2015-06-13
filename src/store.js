@@ -141,4 +141,4 @@ Store.prototype.getOPML = function() {
 Store.prototype.toggleTeasers = function() {
     this.teasers = !this.teasers;
     this.setStore('teasers', this.teasers);
-}
+};
