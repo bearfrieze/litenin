@@ -34,7 +34,8 @@ Renderer.prototype.renderFeeds = function() {
 
 Renderer.prototype.renderFeed = function(feed) {
     var li = this.el('li');
-    li.appendChild(this.el('span', feed.title, 'title'));
+    var a = li.appendChild(this.el('a', feed.title, 'title'));
+    a.href = feed.url;
     var remove = li.appendChild(this.el('button', '✕', 'remove'));
     remove.addEventListener('click', function() {
         this.store.removeFeed(feed.url);
