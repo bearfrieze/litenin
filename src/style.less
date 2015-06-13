@@ -78,6 +78,9 @@ a:visited, a.read {
 p a {
     text-decoration: underline;
 }
+#toggleTeasers {
+    float: right;
+}
 #feeds ul {
     margin-bottom: -0.75rem;
     font-size: @small;
@@ -127,24 +130,31 @@ p a {
 #items li a:hover {
     background: @bone;
 }
-#items a:hover, #items a:hover span {
+#items a:hover, #items a:hover span:not(.teaser) {
     text-decoration: underline;
 }
 #items a span {
     display: inline-block;
     margin: 0;
-    .ellipsis;
     &:nth-child(2) {
         margin-left: 2rem;
     }
-    &:not(.title) {
-        color: @iron;
-    }
     &.feedTitle {
+        color: @iron;
         width: 10rem;
+        .ellipsis;
     }
     &.title {
         width: 37rem;
+        .ellipsis;
+    }
+    &.publishedDate {
+        color: @iron;
+    }
+    &.teaser {
+        width: 37rem;
+        line-height: 1.5rem;
+        margin: 1rem 0 1rem 12rem;
     }
 }
 .drop {
@@ -163,13 +173,13 @@ p a {
         width: 100%;
     }
     #items a span {
-        &:not(.title) {
+        &.feedTitle, &.publishedDate {
             display: none;
         }
-        &:nth-child(2) {
+        &:nth-child(2), &.teaser {
             margin-left: 0;
         }
-        &.title {
+        &.title, &.teaser {
             width: 100%;
         }
     }
@@ -186,6 +196,7 @@ p a {
         display: block;
         width: 100%;
         margin: 0.5rem 0 0 0;
+        float: none;
     }
     input, button, #feeds ul {
         font-size: inherit;
