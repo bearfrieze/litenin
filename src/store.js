@@ -72,7 +72,7 @@ Store.prototype.loadFeed = function(url, feed) {
         this.removeFeed(url);
         return;
     } else if (feed === true) {
-        this.renderer.err('I have never seen this feed before! Please wait a while and then refresh.');
+        this.renderer.err('We are fetching your feeds. Please refresh in a few seconds.');
         return;
     }
     if (url !== feed.url) {
