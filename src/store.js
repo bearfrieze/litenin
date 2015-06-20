@@ -79,6 +79,9 @@ Store.prototype.loadFeed = function(url, feed) {
         this.feeds[feed.url] = this.feeds[url];
         this.removeFeed(url);
     }
+    if (feed.items === null) {
+        return;
+    }
     var items = feed.items;
     var now = Math.ceil(new Date().getTime() / 1000);
     for (var i = 0; i < items.length; i++) {
