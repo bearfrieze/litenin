@@ -72,12 +72,15 @@ Store.prototype.loadFeed = function(url, feed) {
         this.removeFeed(url);
         return;
     } else if (feed === true) {
-        this.renderer.err('I have never seen this feed before! Please wait a while and then refresh.');
+        this.renderer.err('We are fetching your feeds. Please refresh in a few seconds.');
         return;
     }
     if (url !== feed.url) {
         this.feeds[feed.url] = this.feeds[url];
         this.removeFeed(url);
+    }
+    if (feed.items === null) {
+        return;
     }
     var items = feed.items;
     var now = Math.ceil(new Date().getTime() / 1000);

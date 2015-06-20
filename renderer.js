@@ -17,8 +17,8 @@ Renderer.prototype.render = function() {
 };
 
 Renderer.prototype.renderNavigation = function() {
-    var toggleTeasers = document.getElementById('toggleTeasers');
-    toggleTeasers.innerHTML = this.store.teasers ? "Disable teasers" : "Enable teasers";
+    // var toggleTeasers = document.getElementById('toggleTeasers');
+    // toggleTeasers.innerHTML = this.store.teasers ? "Disable teasers" : "Enable teasers";
 };
 
 Renderer.prototype.renderFeeds = function() {

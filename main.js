@@ -22,11 +22,11 @@ run = function() {
         feeds.classList.toggle('hidden');
     });
 
-    var toggleTeasers = document.getElementById('toggleTeasers');
-    toggleTeasers.addEventListener('click', function() {
-        store.toggleTeasers();
-        renderer.render();
-    });
+    // var toggleTeasers = document.getElementById('toggleTeasers');
+    // toggleTeasers.addEventListener('click', function() {
+    //     store.toggleTeasers();
+    //     renderer.render();
+    // });
 
     window.addEventListener('focus', function() {
         var seconds = (new Date() - this.updated) / 1000;
