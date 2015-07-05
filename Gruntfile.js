@@ -43,7 +43,7 @@ module.exports = function(grunt) {
                     process: function(content, path) {
                         return grunt.template.process(content, {
                             data: {
-                                static: 'http://192.168.59.103:8081/'
+                                nimbus: 'http://192.168.59.103:8080/'
                             }
                         });
                     }
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
                     process: function(content, path) {
                         return grunt.template.process(content, {
                             data: {
-                                static: 'http://static.liten.in/'
+                                nimbus: 'http://nimbus.liten.in/'
                             }
                         });
                     }

@@ -6,7 +6,7 @@ Store = function() {
     this.teasers = this.getStore('teasers');
     if (this.teasers === undefined) this.teasers = false;
     this.items = {};
-    this.static = '<%= static %>';
+    this.nimbus = '<%= nimbus %>';
 };
 
 Store.prototype.setStore = function(key, store) {
@@ -23,7 +23,7 @@ Store.prototype.queryFeeds = function(urls, callback) {
     xhr.onload = function (argument) {
         callback(JSON.parse(xhr.responseText));
     };
-    xhr.open('POST', this.static, true);
+    xhr.open('POST', this.nimbus, true);
     xhr.send(JSON.stringify(urls));
 };
 
