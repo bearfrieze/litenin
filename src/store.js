@@ -77,7 +77,7 @@ Store.prototype.loadFeed = function(url, feed) {
     }
     if (url !== feed.url) {
         this.feeds[feed.url] = this.feeds[url];
-        this.feeds[feed.url].url = feed.url
+        this.feeds[feed.url].url = feed.url;
         this.removeFeed(url);
     }
     if (feed.items === null) {
