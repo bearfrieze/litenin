@@ -127,6 +127,7 @@ Renderer.prototype.timeSince = function(item) {
 };
 
 Renderer.prototype.timePretty = function(seconds) {
+    if (seconds < 0) return "In the future";
     var unit, divided;
     for (var i = 0; i < this.units.length; i++) {
         unit = this.units[i];
