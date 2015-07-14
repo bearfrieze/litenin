@@ -1,0 +1,33 @@
+{
+  "name": "Litenin",
+  "description": "Litenin is a very light and shockingly fast feed reader.",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bearfrieze/litenin.git"
+  },
+  "version": "1.0.0",
+  "dependencies": {
+    "mithril": "^0.2.0"
+  },
+  "devDependencies": {
+    "babelify": "^6.1.2",
+    "browserify": "^10.2.4",
+    "http-server": "^0.8.0",
+    "minifyify": "^7.0.2",
+    "parallelshell": "^1.2.0",
+    "sane": "^1.1.3",
+    "watchify": "^3.2.3"
+  },
+  "scripts": {
+    "prestart": "parallelshell 'mkdir -p dev'",
+    "start": "parallelshell 'npm run watch' 'npm run serve:dev'",
+    "watch": "parallelshell 'npm run watch:html' 'npm run watch:js'",
+    "watch:html": "sane 'cp src/*.html dev' --glob='src/*.html'",
+    "watch:js": "watchify src/main.js -d -t babelify -o dev/bundle.js",
+    "prebuild": "mkdir -p build",
+    "build": "cp src/*.html build && export NODE_ENV=production && browserify src/main.js -d -p [minifyify --map build/bundle.map.json --output build/bundle.map.json] -t babelify -o build/bundle.js",
+    "serve:dev": "http-server -p 8080 dev/ -s -c-1",
+    "serve:build": "http-server -p 8080 build/ -s -c-1"
+  }
+}
