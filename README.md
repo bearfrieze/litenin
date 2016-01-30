@@ -1,6 +1,6 @@
 # Litenin
 
-Litenin is a light and shockingly fast feed reader.
+Litenin is a light and shockingly fast feed reader. I've [stopped working on it](https://github.com/bearfrieze/litenin/issues/14) and shut down the server. Feel free to boot up your own copy.
 
 ## Motivation
 
